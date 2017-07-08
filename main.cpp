@@ -98,19 +98,19 @@ void move(short int old_x, short int old_y, short int &new_x, short int &new_y, 
     else if (direction == RIGHT) new_x = (short) (old_x + 1);
 }
 
-bool insert_position(set<string> &history, short int x, short int y, char direction) {
-    string position = to_string(x) + to_string(y) + direction;
-
-    if (history.find(position) != history.end()) return false;
-
-    history.insert(position);
-    return true;
-}
-
-void erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
-    string position = to_string(x) + to_string(y) + direction;
-    history.erase(position);
-}
+//bool insert_position(set <string> &history, short int x, short int y, char direction) {
+//    string position = to_string(x) + to_string(y) + direction;
+//
+//    if (history.find(position) != history.end()) return false;
+//
+//    history.insert(position);
+//    return true;
+//}
+//
+//void erase_position_from_history(set <string> &history, short int x, short int y, char direction) {
+//    string position = to_string(x) + to_string(y) + direction;
+//    history.erase(position);
+//}
 
 
 bool solve(vector<vector<char> > &map, short int mirrors, short int covered, char direction, short int x, short int y,
@@ -147,9 +147,14 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
 
     if (map[y][x] == TAKEN) {
         move(x, y, new_x, new_y, direction);
-        if (insert_position(history, new_x, new_y, direction))
-            return solve(map, mirrors, covered, direction, new_x, new_y, history);
-        else return false;
+//        if (insert_position(history, new_x, new_y, direction)) {
+//            bool result = solve(map, mirrors, covered, direction, new_x, new_y, history);
+//            if (!result) erase_position_from_history(history, new_x, new_y, direction);
+//            return result;
+//        } else {
+//            return false;
+//        }
+        return solve(map, mirrors, covered, direction, new_x, new_y, history);
     }
 
     if (map[y][x] == EMPTY) {
@@ -163,12 +168,12 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
             move(x, y, new_x, new_y, new_direction);
 
             map[y][x] = mark;
-            if (insert_position(history, new_x, new_y, new_direction))
-                result = solve(map, mirrors - mirrors_used, covered, new_direction, new_x, new_y, history);
-            else return false;
+//            if (insert_position(history, new_x, new_y, new_direction))
+            result = solve(map, mirrors - mirrors_used, covered, new_direction, new_x, new_y, history);
+//            else return false;
             if (result) return true;
 
-            erase_position_from_history(history, new_x, new_y, new_direction);
+//            erase_position_from_history(history, new_x, new_y, new_direction);
             map[y][x] = EMPTY;
         }
     }
