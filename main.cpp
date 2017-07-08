@@ -26,7 +26,6 @@ struct action {
     bool drop_mirror;
 };
 
-void erase_position(set<string> &set, short x, short y, char direction);
 
 map<char, vector<action> > actions;
 
@@ -107,13 +106,10 @@ bool insert_position(set<string> &history, short int x, short int y, char direct
     history.insert(position);
     return true;
 }
-bool erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
+
+void erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
     string position = to_string(x) + to_string(y) + direction;
-
-    if (history.find(position) != history.end()) return false;
-
-    history.insert(position);
-    return true;
+    history.erase(position);
 }
 
 
@@ -143,6 +139,7 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
 
         move(x, y, new_x, new_y, direction);
         map[y][x] = TAKEN;
+
         result = solve(map, mirrors, covered, direction, new_x, new_y, history);
         map[y][x] = CRYSTAL;
         return result;
@@ -171,7 +168,7 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
             else return false;
             if (result) return true;
 
-            erase_position(history, new_x, new_y, new_direction);
+            erase_position_from_history(history, new_x, new_y, new_direction);
             map[y][x] = EMPTY;
         }
     }
