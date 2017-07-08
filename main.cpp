@@ -12,12 +12,12 @@
 #define EMPTY ' '
 #define WALL '#'
 #define TAKEN 'X'
+#define VISITED '!'
 
 #define MIR_SLASH '/'
 #define MIR_BACKSLASH '\\'
 
 using namespace std;
-//using vector<vector<char> > = vector<vector<char> >;
 int crystals, width, height;
 
 struct action {
@@ -32,7 +32,10 @@ map<char, vector<action> > actions;
 void print_map(vector<vector<char> > M) {
     for (int i = 0; i < M.size(); ++i) {
         for (int j = 0; j < M[0].size(); ++j)
-            cout << M[i][j];
+            if (M[i][j] != WALL and M[i][j] != MIR_SLASH and M[i][j] != MIR_BACKSLASH and M[i][j] != CRYSTAL)
+                cout << EMPTY;
+            else
+                cout << M[i][j];
         cout << endl;
     }
 }
@@ -98,41 +101,52 @@ void move(short int old_x, short int old_y, short int &new_x, short int &new_y, 
     else if (direction == RIGHT) new_x = (short) (old_x + 1);
 }
 
-bool insert_position(set<string> &history, short int x, short int y, char direction) {
-    string position = to_string(x) + to_string(y) + direction;
-
-    if (history.find(position) != history.end()) return false;
-
-    history.insert(position);
-    return true;
-}
-
-void erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
-    string position = to_string(x) + to_string(y) + direction;
-    history.erase(position);
-}
-
+//bool insert_position(set<string> &history, short int x, short int y, char direction) {
+//    string position = to_string(x) + to_string(y) + direction;
+//
+//    if (history.find(position) != history.end()) return false;
+//
+//    history.insert(position);
+//    return true;
+//}
+//
+//void erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
+//    string position = to_string(x) + to_string(y) + direction;
+//    history.erase(position);
+//}
+//
+//void print_history(set<string> &history) {
+//    cout << "Current history: " << endl;
+//    for (set<string>::iterator i = history.begin(); i != history.end(); i++) {
+//        cout << *i << endl;
+//    }
+//}
 
 bool solve(vector<vector<char> > &map, short int mirrors, short int covered, char direction, short int x, short int y,
            set<string> &history) {
-    if (!insert_position(history, x, y, direction)) return false;
-
+//    if (!insert_position(history, x, y, direction)) return false;
+//    printf("XXXXXXXXXXXXXXXXXXXXX\n");
+//    char temp = map[y][x];
+//    map[y][x] = '^';
+//    print_map(map);
+//    print_history(history);
+//    map[y][x] = temp;
 
     //went beyond the game map
     if (x < 0 or x == width or y < 0 or y == height) {
-        erase_position_from_history(history, x, y, direction);
+//        erase_position_from_history(history, x, y, direction);
         return false;
     }
 
     //cannot use more mirrors than specified
     if (mirrors < 0) {
-        erase_position_from_history(history, x, y, direction);
+//        erase_position_from_history(history, x, y, direction);
         return false;
     }
 
     //hit a wall without covering all the crystals
     if (map[y][x] == WALL) {
-        erase_position_from_history(history, x, y, direction);
+//        erase_position_from_history(history, x, y, direction);
         return false;
     }
 
@@ -153,15 +167,15 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
         result = solve(map, mirrors, covered, direction, new_x, new_y, history);
 
         map[y][x] = CRYSTAL;
-        erase_position_from_history(history, x, y, direction);
+//        erase_position_from_history(history, x, y, direction);
         return result;
     }
 
-    if (map[y][x] == TAKEN) {
+    if (map[y][x] == TAKEN or map[y][x] == VISITED) {
         move(x, y, new_x, new_y, direction);
 
-        bool result = solve(map, mirrors, covered, direction, new_x, new_y, history);
-        erase_position_from_history(history, x, y, direction);
+        result = solve(map, mirrors, covered, direction, new_x, new_y, history);
+//        erase_position_from_history(history, x, y, direction);
 
         return result;
     }
@@ -176,6 +190,7 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
 
             move(x, y, new_x, new_y, new_direction);
 
+            if (mark == EMPTY) mark = VISITED;
             map[y][x] = mark;
             result = solve(map, mirrors - mirrors_used, covered, new_direction, new_x, new_y, history);
             if (result) return true;
@@ -184,7 +199,7 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
         }
     }
 
-    erase_position_from_history(history, x, y, direction);
+//    erase_position_from_history(history, x, y, direction);
     return false;
 }
 
