@@ -98,33 +98,43 @@ void move(short int old_x, short int old_y, short int &new_x, short int &new_y, 
     else if (direction == RIGHT) new_x = (short) (old_x + 1);
 }
 
-//bool insert_position(set <string> &history, short int x, short int y, char direction) {
-//    string position = to_string(x) + to_string(y) + direction;
-//
-//    if (history.find(position) != history.end()) return false;
-//
-//    history.insert(position);
-//    return true;
-//}
-//
-//void erase_position_from_history(set <string> &history, short int x, short int y, char direction) {
-//    string position = to_string(x) + to_string(y) + direction;
-//    history.erase(position);
-//}
+bool insert_position(set<string> &history, short int x, short int y, char direction) {
+    string position = to_string(x) + to_string(y) + direction;
+
+    if (history.find(position) != history.end()) return false;
+
+    history.insert(position);
+    return true;
+}
+
+void erase_position_from_history(set<string> &history, short int x, short int y, char direction) {
+    string position = to_string(x) + to_string(y) + direction;
+    history.erase(position);
+}
 
 
 bool solve(vector<vector<char> > &map, short int mirrors, short int covered, char direction, short int x, short int y,
            set<string> &history) {
+    if (!insert_position(history, x, y, direction)) return false;
 
 
     //went beyond the game map
-    if (x < 0 or x == width or y < 0 or y == height) return false;
+    if (x < 0 or x == width or y < 0 or y == height) {
+        erase_position_from_history(history, x, y, direction);
+        return false;
+    }
 
     //cannot use more mirrors than specified
-    if (mirrors < 0) return false;
+    if (mirrors < 0) {
+        erase_position_from_history(history, x, y, direction);
+        return false;
+    }
 
     //hit a wall without covering all the crystals
-    if (map[y][x] == WALL) return false;
+    if (map[y][x] == WALL) {
+        erase_position_from_history(history, x, y, direction);
+        return false;
+    }
 
     //declare variables for the new coordinates
     short int new_x, new_y;
@@ -141,20 +151,19 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
         map[y][x] = TAKEN;
 
         result = solve(map, mirrors, covered, direction, new_x, new_y, history);
+
         map[y][x] = CRYSTAL;
+        erase_position_from_history(history, x, y, direction);
         return result;
     }
 
     if (map[y][x] == TAKEN) {
         move(x, y, new_x, new_y, direction);
-//        if (insert_position(history, new_x, new_y, direction)) {
-//            bool result = solve(map, mirrors, covered, direction, new_x, new_y, history);
-//            if (!result) erase_position_from_history(history, new_x, new_y, direction);
-//            return result;
-//        } else {
-//            return false;
-//        }
-        return solve(map, mirrors, covered, direction, new_x, new_y, history);
+
+        bool result = solve(map, mirrors, covered, direction, new_x, new_y, history);
+        erase_position_from_history(history, x, y, direction);
+
+        return result;
     }
 
     if (map[y][x] == EMPTY) {
@@ -168,16 +177,14 @@ bool solve(vector<vector<char> > &map, short int mirrors, short int covered, cha
             move(x, y, new_x, new_y, new_direction);
 
             map[y][x] = mark;
-//            if (insert_position(history, new_x, new_y, new_direction))
             result = solve(map, mirrors - mirrors_used, covered, new_direction, new_x, new_y, history);
-//            else return false;
             if (result) return true;
 
-//            erase_position_from_history(history, new_x, new_y, new_direction);
             map[y][x] = EMPTY;
         }
     }
 
+    erase_position_from_history(history, x, y, direction);
     return false;
 }
 
