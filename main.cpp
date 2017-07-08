@@ -56,40 +56,50 @@ void initialize_actions() {
     y.direction = RIGHT;
     z.direction = LEFT;
 
+    swap(y, z);
     up_act.push_back(x);
     up_act.push_back(y);
     up_act.push_back(z);
     actions[UP] = up_act;
 
+    swap(y, z);
     //DOWN
     x.direction = DOWN;
     y.direction = LEFT;
     z.direction = RIGHT;
 
+    swap(y, z);
     down_act.push_back(x);
     down_act.push_back(y);
     down_act.push_back(z);
     actions[DOWN] = down_act;
+    swap(y, z);
 
     //LEFT
     x.direction = LEFT;
     y.direction = DOWN;
     z.direction = UP;
 
+    swap(y, z);
+
     left_act.push_back(x);
     left_act.push_back(y);
     left_act.push_back(z);
     actions[LEFT] = left_act;
+    swap(y, z);
 
     //RIGHT
     x.direction = RIGHT;
     y.direction = UP;
     z.direction = DOWN;
+    swap(y, z);
 
     right_act.push_back(x);
     right_act.push_back(y);
     right_act.push_back(z);
     actions[RIGHT] = right_act;
+    swap(y, z);
+
 }
 
 void move(short int old_x, short int old_y, short int &new_x, short int &new_y, char direction) {
